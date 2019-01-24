@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <item
+            android:id="@+id/navigation_snr"
+            android:icon="@android:drawable/ic_menu_sort_by_size"
+            android:title="@string/title_snr" />
+
+    <item
+            android:id="@+id/navigation_sen"
+            android:icon="@android:drawable/ic_menu_always_landscape_portrait"
+            android:title="@string/title_sen"/>
+
+
+    <item
+            android:id="@+id/navigation_map"
+            android:icon="@android:drawable/ic_menu_mapmode"
+            android:title="@string/title_map" />
+
+</menu>

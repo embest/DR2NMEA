@@ -1,0 +1,45 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <SwitchPreference
+            android:defaultValue="true"
+            android:key="preference_keep_screen"
+            android:summary="@string/pref_description_keep_screen"
+            android:title="@string/pref_title_keep_screen" />
+
+    <SwitchPreference
+            android:defaultValue="true"
+            android:title="@string/pref_title_nmea_record"
+            android:summary="@string/pref_description_nmea_record"
+            android:key="preference_nmea_record" />
+
+    <SwitchPreference
+            android:defaultValue="true"
+            android:title="@string/pref_title_raw_record"
+            android:summary="@string/pref_description_raw_record"
+            android:key="preference_raw_record" />
+
+
+    <EditTextPreference
+            android:defaultValue="01"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:summary="@string/pref_description_device_name"
+            android:title="@string/pref_title_device_name"
+            android:key="preference_device_name" />
+
+    <SwitchPreference
+            android:defaultValue="false"
+            android:key="preference_hack_dual_frequency_support"
+            android:summary="@string/pref_description_hack_dual_frequency_support"
+            android:title="@string/pref_title_hack_dual_frequency_support" />
+
+    <SwitchPreference
+            android:defaultValue="false"
+            android:key="preference_nmea_generator"
+            android:summary="@string/pref_description_nmea_generator"
+            android:title="@string/pref_title_nmea_generator" />
+
+
+
+
+</PreferenceScreen>
