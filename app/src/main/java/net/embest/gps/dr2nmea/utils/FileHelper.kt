@@ -37,7 +37,7 @@ class FileHelper {
     fun writeNmeaFile(fileName: String, data: String) {
         if (mExternalPath != "") {
             try {
-                val file = File(mExternalPath + fileName + "_nmea.txt")
+                val file = File(mExternalPath + fileName + "_O.nmea")
                 if (!file.exists()) {
 
                     file.createNewFile()
@@ -55,7 +55,7 @@ class FileHelper {
     fun writeGeneratorNmea(fileName: String, data: String) {
         if (mExternalPath != "") {
             try {
-                val file = File("$mExternalPath$fileName.nmea")
+                val file = File("$mExternalPath$fileName" +"_G.nmea")
                 if (!file.exists()) {
 
                     file.createNewFile()
@@ -118,7 +118,7 @@ class FileHelper {
     }
 
     companion object {
-        private const val TAG = "GNSSTestFile"
+        private const val TAG = "DR2NMEA"
         private const val LOGGER_VERSION  = "v2.0.0.1"
         private val EXTERNAL_PATH = Environment.getExternalStorageDirectory().path + "/"
     }

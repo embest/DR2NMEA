@@ -39,9 +39,9 @@
     <string name="pref_header_general">General</string>
     <string name="pref_description_keep_screen">Keep screen on when test</string>
     <string name="pref_title_keep_screen">Keep Screen</string>
-    <string name="pref_description_nmea_record">Record NMEA message to /sdcard/GNSSTest</string>
+    <string name="pref_description_nmea_record">Record NMEA message to /sdcard/DR2NMEA</string>
     <string name="pref_title_nmea_record">NMEA Record</string>
-    <string name="pref_description_raw_record">Record Measurements message to /sdcard/GNSSTest</string>
+    <string name="pref_description_raw_record">Record Measurements message to /sdcard/DR2NMEA</string>
     <string name="pref_title_raw_record">Measurements Record</string>
 
     <string name="pref_title_device_name">Device Name</string>

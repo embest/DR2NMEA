@@ -355,10 +355,10 @@ class MainActivity : AppCompatActivity() {
             }
             mGnssInfo!!.time = location.time
             Log.d(TAG, "onLocationChanged ${mGnssInfo!!.latitude}  ${mGnssInfo!!.longitude}  ${mGnssInfo!!.altitude} ${mGnssInfo!!.fixtime}")
-            Log.e(TAG, "onLocationChanged: ${mNmeaGenerator.GenerateNmea(mGnssInfo!!)}")
+            Log.e(TAG, "onLocationChanged: ${mNmeaGenerator.onGenerateNmea(mGnssInfo!!)}")
 
             if (mPreferences!!.getBoolean("preference_nmea_generator", true)) {
-                mFile.writeGeneratorNmea(mRecordFileName, mNmeaGenerator.GenerateNmea(mGnssInfo!!))
+                mFile.writeGeneratorNmea(mRecordFileName, mNmeaGenerator.onGenerateNmea(mGnssInfo!!))
             }
         }
 
@@ -421,7 +421,7 @@ class MainActivity : AppCompatActivity() {
 
                 override fun onFirstFix(ttffMillis: Int) {
                     mGnssInfo!!.ttff = ttffMillis/1000f
-                    Log.e(TAG, "TTFF: ${mNmeaGenerator.GenerateFIX(mGnssInfo!!)}")
+                    Log.e(TAG, "TTFF: ${mNmeaGenerator.onGenerateFIX(mGnssInfo!!)}")
                 }
             }
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -501,8 +501,8 @@ class MainActivity : AppCompatActivity() {
                                 "",
                                 meas.carrierFrequencyHz).replace("NaN","")
                         }
-                        Log.e(TAG,"CF:" + meas.carrierFrequencyHz)
-                        Log.e(TAG, measurementStream)
+//                        Log.e(TAG,"CF:" + meas.carrierFrequencyHz)
+//                        Log.e(TAG, measurementStream)
                         if (mPreferences!!.getBoolean("preference_raw_record", true)) {
                             mFile.writeMeasurementFile(mRecordFileName,measurementStream)
                         }
@@ -565,7 +565,7 @@ class MainActivity : AppCompatActivity() {
 
 
     companion object {
-        private const val TAG = "GNSSTest"
+        private const val TAG = "DR2NMEA"
 
         private const val REQUEST_ID_MULTIPLE_PERMISSIONS = 1
         private const val SNR_FRAGMENT  = 0
