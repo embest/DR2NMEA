@@ -112,6 +112,7 @@ class MainActivity : AppCompatActivity() {
 
             mGnssStarted = if (!mGnssStarted) {
                 onMakeRecordName()
+                mGnssInfo!!.reset()
                 gpsStart(1000,0f)
                 fab.setImageResource(android.R.drawable.ic_media_pause)
                 Snackbar.make(view, mContext.resources.getString(R.string.msg_snack_bar_start_test), Snackbar.LENGTH_SHORT)

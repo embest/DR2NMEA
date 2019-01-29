@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2018 Embest
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package net.embest.gps.dr2nmea.utils
 
 import java.text.SimpleDateFormat
@@ -12,14 +28,14 @@ class NmeaGenerator {
 
     private fun calculateChecksum(data: String): String {
         val array = data.toByteArray()
-        var cksum = array[1]
+        var sum = array[1]
         for (i in 2 until data.length) {
-            val one = cksum.toInt()
+            val one = sum.toInt()
             val two = array[i].toInt()
             val xor = one xor two
-            cksum = (0xff and xor).toByte()
+            sum = (0xff and xor).toByte()
         }
-        return String.format("%02X ", cksum).trim { it <= ' ' }
+        return String.format("%02X ", sum).trim { it <= ' ' }
     }
 
 
@@ -47,20 +63,20 @@ class NmeaGenerator {
         var nmea = "\$GPGGA,,,,,,0,,,,,,,,"
 
         if (info.ttff > 0) {
-            var north_south = "S"
-            var east_west = "W"
+            var north = "S"
+            var east = "W"
 
             if (info.latitude > 0) {
-                north_south = "N"
+                north = "N"
             }
 
             if (info.longitude > 0) {
-                east_west = "E"
+                east = "E"
             }
-            val utc_time_fmt = SimpleDateFormat("HHmmss.SS", Locale.US)
-            utc_time_fmt.timeZone = TimeZone.getTimeZone("UTC")
+            val utcTimeFmt = SimpleDateFormat("HHmmss.SS", Locale.US)
+            utcTimeFmt.timeZone = TimeZone.getTimeZone("UTC")
 
-            val utc_time = utc_time_fmt.format(info.time)
+            val time = utcTimeFmt.format(info.time)
 
             val latitude = formatNmeaLatitude(info.latitude)
             val longitude = formatNmeaLongitude(info.longitude)
@@ -74,7 +90,7 @@ class NmeaGenerator {
                     used++
             }
 
-            nmea = "\$GPGGA,$utc_time,$latitude,$north_south,$longitude,$east_west,1,$used,$dop,$altitude,M,10.0,M,,"
+            nmea = "\$GPGGA,$time,$latitude,$north,$longitude,$east,1,$used,$dop,$altitude,M,10.0,M,,"
         }
         nmea = nmea + "*" + calculateChecksum(nmea) + "\r\n"
 
@@ -87,23 +103,23 @@ class NmeaGenerator {
         var nmea = "\$GPRMC,,V,,,,,,,,,,N"
 
         if (info.ttff > 0) {
-            var north_south = "S"
-            var east_west = "W"
+            var north = "S"
+            var east = "W"
 
             if (info.latitude > 0) {
-                north_south = "N"
+                north = "N"
             }
 
             if (info.longitude > 0) {
-                east_west = "E"
+                east = "E"
             }
-            val utc_time_fmt = SimpleDateFormat("HHmmss.SS", Locale.US)
-            val utc_date_fmt = SimpleDateFormat("ddMMyy", Locale.US)
-            utc_time_fmt.timeZone = TimeZone.getTimeZone("UTC")
-            utc_date_fmt.timeZone = TimeZone.getTimeZone("UTC")
+            val utcTimeFmt = SimpleDateFormat("HHmmss.SS", Locale.US)
+            val utcDateFmt = SimpleDateFormat("ddMMyy", Locale.US)
+            utcTimeFmt.timeZone = TimeZone.getTimeZone("UTC")
+            utcDateFmt.timeZone = TimeZone.getTimeZone("UTC")
 
-            val utc_time = utc_time_fmt.format(info.time)
-            val utc_date = utc_date_fmt.format(info.time)
+            val time = utcTimeFmt.format(info.time)
+            val date = utcDateFmt.format(info.time)
 
             val latitude = formatNmeaLatitude(info.latitude)
             val longitude = formatNmeaLongitude(info.longitude)
@@ -111,7 +127,7 @@ class NmeaGenerator {
             val speed = String.format("%.1f", info.speed)
             val bearing = String.format("%.1f", info.bearing)
 
-            nmea = "\$GPRMC,$utc_time,A,$latitude,$north_south,$longitude,$east_west,$speed,$bearing,$utc_date,,,A"
+            nmea = "\$GPRMC,$time,A,$latitude,$north,$longitude,$east,$speed,$bearing,$date,,,A"
         }
         nmea = nmea + "*" + calculateChecksum(nmea) + "\r\n"
 
@@ -136,27 +152,27 @@ class NmeaGenerator {
     }
 
 
-    private fun onGenerteGSV(info: GnssInfo): String{
+    private fun onGenerateGSV(info: GnssInfo): String{
         var nmea = ""
 
         val talkers = arrayOf("\$UNGSV", "\$GPGSV", "\$SBGSV", "\$GLGSV", "\$QZGSV", "\$BDGSV", "\$GAGSV", "\$NCGSV")
-        val df_end = arrayOf("", ",8", "", "", ",8", "", ",1", ",8")
+        val dfEnd = arrayOf("", ",8", "", "", ",8", "", ",1", ",8")
 
         val satellite: ArrayList<GnssSatellite> = ArrayList()
         satellite.addAll(info.satellites.sortedBy { it.svid }.sortedBy { it.constellation }.sortedBy { it.frequency })
 
-        for (i in 1 until 7) {
-            val sat_l1 = satellite.filter { it.constellation == i } .filter { Math.abs(it.frequency  - GnssSatellite.GPS_L5_FREQUENCY) > 200.0 }
-            val sat_l5 = satellite.filter { it.constellation == i } .filter { Math.abs(it.frequency  - GnssSatellite.GPS_L5_FREQUENCY) < 200.0 }
+        for (constellation in 1 until 7) {
+            val satL1 = satellite.filter { it.constellation == constellation } .filter { Math.abs(it.frequency  - GnssSatellite.GPS_L5_FREQUENCY) > 200.0 }
+            val satL5 = satellite.filter { it.constellation == constellation } .filter { Math.abs(it.frequency  - GnssSatellite.GPS_L5_FREQUENCY) < 200.0 }
 
-            val number = satellite.filter { it.constellation == i } .size
-            var totle = Math.ceil(sat_l1.size/4.0).toInt()+Math.ceil(sat_l5.size/4.0).toInt()
+            val number = satellite.filter { it.constellation == constellation } .size
+            val total = Math.ceil(satL1.size/4.0).toInt()+Math.ceil(satL5.size/4.0).toInt()
             var index = 1
             var gsv = ""
-            for ((count, j) in sat_l1.withIndex()) {
-                gsv += ",${j.svid},${j.elevations.toInt()},${j.azimuths.toInt()},${j.cn0.toInt()}"
-                if ((count+1)%4 ==0 || count+1 == sat_l1.size ){
-                    gsv = "${talkers[i]},$totle,$index,$number$gsv"
+            for ((count, sat) in satL1.withIndex()) {
+                gsv += ",${sat.svid},${sat.elevations.toInt()},${sat.azimuths.toInt()},${sat.cn0.toInt()}"
+                if ((count+1)%4 ==0 || count+1 == satL1.size ){
+                    gsv = "${talkers[constellation]},$total,$index,$number$gsv"
                     nmea += gsv + "*" + calculateChecksum(gsv) +"\r\n"
                     index ++
                     gsv = ""
@@ -164,33 +180,16 @@ class NmeaGenerator {
             }
 
             gsv = ""
-            for ((count, j) in sat_l5.withIndex()) {
-                gsv += ",${j.svid},${j.elevations.toInt()},${j.azimuths.toInt()},${j.cn0.toInt()}"
-                if ((count+1)%4 ==0 || count+1 == sat_l5.size ){
-                    gsv = "${talkers[i]},$totle,$index,$number$gsv${df_end[i]}"
+            for ((count, sat) in satL5.withIndex()) {
+                gsv += ",${sat.svid},${sat.elevations.toInt()},${sat.azimuths.toInt()},${sat.cn0.toInt()}"
+                if ((count+1)%4 ==0 || count+1 == satL5.size ){
+                    gsv = "${talkers[constellation]},$total,$index,$number$gsv${dfEnd[constellation]}"
                     nmea += gsv + "*" + calculateChecksum(gsv) +"\r\n"
                     index ++
                     gsv = ""
                 }
             }
         }
-
-//        for (i in 1 until 7) {
-//            val sat = satellite.filter { it.constellation == i } .filter { Math.abs(it.frequency  - GnssSatellite.GPS_L5_FREQUENCY) < 200.0 }
-//            val number = sat.size
-//            val totle = Math.ceil(number/4.0).toInt()
-//            var index = 1
-//            var gsv = ""
-//            for ((count, j) in sat.withIndex()) {
-//                gsv += ",${j.svid},${j.elevations.toInt()},${j.azimuths.toInt()},${j.cn0.toInt()}"
-//                if ((count+1)%4 ==0 || count+1 == number ){
-//                    gsv = "${talkers[i]},$totle,$index,$number$gsv${df_end[i]}"
-//                    nmea += gsv + "*" + calculateChecksum(gsv) +"\r\n"
-//                    index ++
-//                    gsv = ""
-//                }
-//            }
-//        }
 
         return nmea
     }
@@ -231,6 +230,6 @@ class NmeaGenerator {
 //    }
 
     fun onGenerateNmea(info: GnssInfo): String {
-        return onGenerateGGA(info) + onGenerteGSV(info) + onGenerateFIX(info) + onGenerateRMC(info)
+        return onGenerateGGA(info) + onGenerateGSV(info) + onGenerateFIX(info) + onGenerateRMC(info)
     }
 }

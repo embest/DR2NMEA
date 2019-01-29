@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package net.embest.gps.dr2nmea.utils
 
 
@@ -42,7 +41,7 @@ class GnssInfo {
         reset()
     }
 
-    private fun reset() {
+    fun reset() {
         time = 0
         latitude = 0.0
         longitude = 0.0
