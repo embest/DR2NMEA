@@ -34,10 +34,16 @@
             android:title="@string/pref_title_hack_dual_frequency_support" />
 
     <SwitchPreference
-            android:defaultValue="false"
+            android:defaultValue="true"
             android:key="preference_nmea_generator"
             android:summary="@string/pref_description_nmea_generator"
             android:title="@string/pref_title_nmea_generator" />
+
+    <SwitchPreference
+            android:defaultValue="true"
+            android:key="preference_sensor_record"
+            android:summary="@string/pref_description_sensor_record"
+            android:title="@string/pref_title_sensor_record" />
 
 
 

@@ -43,7 +43,8 @@
     <string name="pref_title_nmea_record">NMEA Record</string>
     <string name="pref_description_raw_record">Record Measurements message to /sdcard/DR2NMEA</string>
     <string name="pref_title_raw_record">Measurements Record</string>
-
+    <string name="pref_description_sensor_record">Record sensor message to /sdcard/DR2NMEA</string>
+    <string name="pref_title_sensor_record">Sensor Record</string>
     <string name="pref_title_device_name">Device Name</string>
     <string name="pref_description_device_name">Device Name</string>
     <string name="pref_title_hack_dual_frequency_support">Hack for dual Frequency Support</string>

@@ -31,6 +31,10 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.icu.text.SimpleDateFormat
 import android.location.*
 import android.net.Uri
@@ -51,7 +55,7 @@ import net.embest.gps.dr2nmea.utils.*
 import java.util.*
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), SensorEventListener {
 
     private val mSnrFragment = SnrFragment.newInstance()
     private val mSensorFragment = SensorFragment.newInstance()
@@ -66,8 +70,20 @@ class MainActivity : AppCompatActivity() {
     private var mService: LocationManager? = null
     private var mProvider: LocationProvider? = null
 
+    private var mSensorManager: SensorManager? = null// getSystemService(SENSOR_SERVICE);
+
+    private var mSensorAcc: Sensor? = null
+    private var mSensorGyro: Sensor? = null
+    private var mSensorBaro: Sensor? = null
+    private var mTimeStamp: Long = 0
+    private var mSensorLog = ""
+
+    private var mSensorUnCalAcc: Sensor? = null
+    private var mSensorUnCalGyro: Sensor? = null
+
     private var mGnssStarted: Boolean = false
     private var mNeedExit: Boolean =false
+
 
     private var mRecordFileName: String = "gnss_record"
 
@@ -85,7 +101,6 @@ class MainActivity : AppCompatActivity() {
         Log.e(TAG, "onCreate()")
         setContentView(R.layout.activity_main)
         //navigation.menu.removeItem(R.id.navigation_map)
-
 
         // Check the screen orientation, and keep it
         val value = resources.configuration.orientation
@@ -186,6 +201,39 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+    }
+
+    override fun onSensorChanged(event: SensorEvent) {
+        val tsLong = System.currentTimeMillis()
+        when (event.sensor!!.type){
+            Sensor.TYPE_ACCELEROMETER -> {
+                mSensorLog += "ACCCAL,$tsLong,X:${event.values[0]},Y:${event.values[1]},Z:${event.values[2]}\r\n"
+            }
+            Sensor.TYPE_GYROSCOPE -> {
+                mSensorLog += "GYRCAL,$tsLong,X:${event.values[0]},Y:${event.values[1]},Z:${event.values[2]}\r\n"
+            }
+            Sensor.TYPE_ACCELEROMETER_UNCALIBRATED -> {
+                mSensorLog += "ACCORG,$tsLong,X:${event.values[0]},Y:${event.values[1]},Z:${event.values[2]}\r\n"
+            }
+            Sensor.TYPE_GYROSCOPE_UNCALIBRATED -> {
+                mSensorLog += "GYRORG,$tsLong,X:${event.values[0]},Y:${event.values[1]},Z:${event.values[2]}\r\n"
+            }
+            Sensor.TYPE_PRESSURE -> {
+                mSensorLog += "BARORG,$tsLong,V:${event.values[0]}\r\n"
+            }
+        }
+        if (mPreferences!!.getBoolean("preference_sensor_record", true)) {
+            if(tsLong - mTimeStamp >= 1000){
+                mTimeStamp = tsLong
+                mFile.writeSensorFile(mRecordFileName, mSensorLog)
+                mSensorLog = ""
+            }
+        }else{
+            mSensorLog = ""
+        }
+    }
+
     private fun replaceFragment(fragment: Fragment) {
         val fragmentTransaction = supportFragmentManager.beginTransaction()
         fragmentTransaction.replace(R.id.container, fragment)
@@ -236,12 +284,20 @@ class MainActivity : AppCompatActivity() {
 
     private fun onUpdatePermissions() {
         mService = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        mSensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
 
         if (Build.VERSION.SDK_INT >= 28) {
             Log.e(TAG, "gnssHardwareModelName: " + mService!!.gnssHardwareModelName + mService!!.gnssYearOfHardware )
         }
 
         mProvider = mService!!.getProvider(LocationManager.GPS_PROVIDER)
+
+        mSensorAcc = mSensorManager!!.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+        mSensorGyro = mSensorManager!!.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
+        mSensorBaro = mSensorManager!!.getDefaultSensor(Sensor.TYPE_PRESSURE)
+        mSensorUnCalAcc = mSensorManager!!.getDefaultSensor(Sensor.TYPE_ACCELEROMETER_UNCALIBRATED)
+        mSensorUnCalGyro = mSensorManager!!.getDefaultSensor(Sensor.TYPE_GYROSCOPE_UNCALIBRATED)
+
 
         if (mProvider == null) {
             Log.e(TAG, "Unable to get GPS_PROVIDER")
@@ -328,6 +384,12 @@ class MainActivity : AppCompatActivity() {
                 registerGnssNavigationMessageCallback()
                 registerNmeaMessageListener()
             }
+
+            mSensorManager!!.registerListener(this, mSensorAcc, SensorManager.SENSOR_DELAY_GAME)
+            mSensorManager!!.registerListener(this, mSensorGyro, SensorManager.SENSOR_DELAY_GAME)
+            mSensorManager!!.registerListener(this, mSensorBaro, SensorManager.SENSOR_DELAY_GAME)
+            mSensorManager!!.registerListener(this, mSensorUnCalAcc, SensorManager.SENSOR_DELAY_GAME)
+            mSensorManager!!.registerListener(this, mSensorUnCalGyro, SensorManager.SENSOR_DELAY_GAME)
         }
     }
 
@@ -337,6 +399,7 @@ class MainActivity : AppCompatActivity() {
                 mService!!.removeUpdates(mLocationListener)
                 mGnssStarted = false
             }
+            mSensorManager!!.unregisterListener(this)
         }
         unregisterCallbacks()
     }

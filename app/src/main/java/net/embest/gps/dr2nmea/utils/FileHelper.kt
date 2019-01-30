@@ -34,6 +34,24 @@ class FileHelper {
         }
     }
 
+    fun writeSensorFile(fileName: String, data: String) {
+        if (mExternalPath != "") {
+            try {
+                val file = File(mExternalPath + fileName + "_Sensor.txt")
+                if (!file.exists()) {
+
+                    file.createNewFile()
+                }
+                val stream = OutputStreamWriter(FileOutputStream(file, true))
+
+                stream.write(data)
+                stream.close()
+            } catch (e: Exception) {
+                Log.d(TAG, "file create error")
+            }
+        }
+    }
+
     fun writeNmeaFile(fileName: String, data: String) {
         if (mExternalPath != "") {
             try {

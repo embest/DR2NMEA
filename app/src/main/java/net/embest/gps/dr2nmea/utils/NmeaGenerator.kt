@@ -62,7 +62,7 @@ class NmeaGenerator {
         //$GPGGA,054426.00,3110.772682,N,12135.844892,E,1,27,0.3,6.8,M,10.0,M,,*66
         var nmea = "\$GPGGA,,,,,,0,,,,,,,,"
 
-        if (info.ttff > 0) {
+        if (info.ttff > 0 || info.time > 0) {
             var north = "S"
             var east = "W"
 
@@ -102,7 +102,7 @@ class NmeaGenerator {
         //$GPRMC,054425.00,A,3110.772186,N,12135.844962,E,001.8,341.7,160119,,,A*55
         var nmea = "\$GPRMC,,V,,,,,,,,,,N"
 
-        if (info.ttff > 0) {
+        if (info.ttff > 0 || info.time > 0) {
             var north = "S"
             var east = "W"
 
@@ -138,7 +138,7 @@ class NmeaGenerator {
         //$PGLOR,1,FIX,1.0,1.0*20
         var nmea = ""
 
-        if (info.ttff > 0) {
+        if (info.ttff > 0 || info.time > 0) {
             val time = if (info.fixtime > 0){
                 String.format("%.1f", info.fixtime)
             } else{
@@ -157,15 +157,15 @@ class NmeaGenerator {
 
         val talkers = arrayOf("\$UNGSV", "\$GPGSV", "\$SBGSV", "\$GLGSV", "\$QZGSV", "\$BDGSV", "\$GAGSV", "\$NCGSV")
         val dfEnd = arrayOf("", ",8", "", "", ",8", "", ",1", ",8")
+        val svid2Nmea = arrayOf(0, 0, 32, 64, 1, 200, 100, 0)
 
-        val satellite: ArrayList<GnssSatellite> = ArrayList()
-        satellite.addAll(info.satellites.sortedBy { it.svid }.sortedBy { it.constellation }.sortedBy { it.frequency })
+        val satellites = info.satellites.sortedBy { it.svid }.sortedBy { it.constellation }.sortedBy { it.frequency }
 
         for (constellation in 1 until 7) {
-            val satL1 = satellite.filter { it.constellation == constellation } .filter { Math.abs(it.frequency  - GnssSatellite.GPS_L5_FREQUENCY) > 200.0 }
-            val satL5 = satellite.filter { it.constellation == constellation } .filter { Math.abs(it.frequency  - GnssSatellite.GPS_L5_FREQUENCY) < 200.0 }
+            val satL1 = satellites.filter { it.constellation == constellation }.filter { Math.abs(it.frequency  - GnssSatellite.GPS_L5_FREQUENCY) > 200.0 }
+            val satL5 = satellites.filter { it.constellation == constellation }.filter { Math.abs(it.frequency  - GnssSatellite.GPS_L5_FREQUENCY) < 200.0 }
 
-            val number = satellite.filter { it.constellation == constellation } .size
+            val number = satellites.filter { it.constellation == constellation } .size
             val total = Math.ceil(satL1.size/4.0).toInt()+Math.ceil(satL5.size/4.0).toInt()
             var index = 1
             var gsv = ""
@@ -194,20 +194,20 @@ class NmeaGenerator {
         return nmea
     }
 
-//    private fun GenerteGSA(info: GnssInfo): String{
+//    private fun onGenerateGSA(info: GnssInfo): String{
 //        var nmea = ""
 //
 //        val talkers = arrayOf("\$UNGSA", "\$GPGSA", "\$SBGSA", "\$GNGSA", "\$QZGSA", "\$BDGSA", "\$GAGSA", "\$NCGSA")
+//        val svid2Nmea = arrayOf(0, 0, 32, 64, 1, 200, 100, 0)
 //
-//        val satellite: ArrayList<GnssSatellite> = ArrayList()
-//        satellite.addAll(info.satellites.sortedBy { it.svid }.sortedBy { it.constellation }.sortedBy { it.frequency })
+//        val satellites = info.satellites.sortedBy { it.svid }.sortedBy { it.constellation }.sortedBy { it.frequency }
 //
-//        for (i in 1 until 7) {
-//            val sat = satellite.filter { it.constellation == i }
-//            val number = sat.size
+//        for (constellation in 1 until 7) {
+//            val satL1 = satellites.filter { it.constellation == constellation }.filter { Math.abs(it.frequency  - GnssSatellite.GPS_L5_FREQUENCY) > 200.0 }
+//            val number = satL1.size
 //            var index = 0
 //            var gsa = ""
-//            for ((count, j) in sat.withIndex()) {
+//            for ((count, j) in satL1.withIndex()) {
 //                if (j.inUse) {
 //                    gsa += ",${j.svid}"
 //                    index++
@@ -217,7 +217,7 @@ class NmeaGenerator {
 //                                gsa += ","
 //                            }
 //                        }
-//                        gsa = "${talkers[i]},A,3$gsa,,,"
+//                        gsa = "${talkers[constellation]},A,3$gsa,,,"
 //                        nmea += gsa + "*" + calculateChecksum(gsa) + "\r\n"
 //                        gsa = ""
 //                        index = 0
