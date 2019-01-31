@@ -497,6 +497,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private fun registerGnssMeasurementsCallback(){
         if (mGnssMeasurementsCallBack == null) {
             mGnssMeasurementsCallBack = object : GnssMeasurementsEvent.Callback() {
+                @Suppress("DEPRECATION")
                 override fun onGnssMeasurementsReceived(event: GnssMeasurementsEvent) {
                     for (meas in event.measurements) {
                         val measurementStream = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

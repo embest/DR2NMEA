@@ -28,6 +28,10 @@ class FileHelper {
     private val mExternalPath = EXTERNAL_PATH + "DR2NMEA/"
 
     init {
+        onCheckDirectory()
+    }
+
+    private fun onCheckDirectory(){
         val file = File(mExternalPath)
         if (!file.exists()) {
             file.mkdirs()
@@ -35,6 +39,7 @@ class FileHelper {
     }
 
     fun writeSensorFile(fileName: String, data: String) {
+        onCheckDirectory()
         if (mExternalPath != "") {
             try {
                 val file = File(mExternalPath + fileName + "_Sensor.txt")
@@ -53,6 +58,7 @@ class FileHelper {
     }
 
     fun writeNmeaFile(fileName: String, data: String) {
+        onCheckDirectory()
         if (mExternalPath != "") {
             try {
                 val file = File(mExternalPath + fileName + "_O.nmea")
@@ -71,6 +77,7 @@ class FileHelper {
     }
 
     fun writeGeneratorNmea(fileName: String, data: String) {
+        onCheckDirectory()
         if (mExternalPath != "") {
             try {
                 val file = File("$mExternalPath$fileName" +"_G.nmea")
@@ -89,6 +96,7 @@ class FileHelper {
     }
 
     fun writeMeasurementFile(fileName: String, data: String) {
+        onCheckDirectory()
         if (mExternalPath != "") {
             try {
                 val file = File(mExternalPath + fileName + "_raw.txt")
