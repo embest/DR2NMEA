@@ -1,14 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:tools="http://schemas.android.com/tools"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent"
-             tools:context=".fragments.SensorFragment">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="fill_parent"
+              tools:context=".fragments.SensorFragment" android:orientation="vertical">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/lineSensorAcc"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="@string/hello_blank_fragment"/>
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+    />
 
-</FrameLayout>
+    <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/lineSensorGyro"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+    />
+
+    <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/lineSensorBaro"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+    />
+
+    <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/lineSensorMag"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1">
+
+    </com.github.mikephil.charting.charts.LineChart>
+
+</LinearLayout>

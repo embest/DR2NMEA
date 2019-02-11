@@ -75,6 +75,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private var mSensorAcc: Sensor? = null
     private var mSensorGyro: Sensor? = null
     private var mSensorBaro: Sensor? = null
+    private var mSensorMag: Sensor? = null
+    private var mSensorUnCalMag: Sensor? = null
     private var mTimeStamp: Long = 0
     private var mSensorLog = ""
 
@@ -215,12 +217,22 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             }
             Sensor.TYPE_ACCELEROMETER_UNCALIBRATED -> {
                 mSensorLog += "ACCORG,$tsLong,X:${event.values[0]},Y:${event.values[1]},Z:${event.values[2]}\r\n"
+                onUpdateSensorView(tsLong,event.values[0],event.values[1],event.values[2],event.sensor!!.type)
             }
             Sensor.TYPE_GYROSCOPE_UNCALIBRATED -> {
                 mSensorLog += "GYRORG,$tsLong,X:${event.values[0]},Y:${event.values[1]},Z:${event.values[2]}\r\n"
+                onUpdateSensorView(tsLong,event.values[0],event.values[1],event.values[2],event.sensor!!.type)
             }
             Sensor.TYPE_PRESSURE -> {
                 mSensorLog += "BARORG,$tsLong,V:${event.values[0]}\r\n"
+                onUpdateSensorView(tsLong,event.values[0],0f,0f,event.sensor!!.type)
+            }
+            Sensor.TYPE_MAGNETIC_FIELD -> {
+                mSensorLog += "MAGCAL,$tsLong,V:${event.values[0]}\r\n"
+            }
+            Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED -> {
+                mSensorLog += "MAGORG,$tsLong,V:${event.values[0]}\r\n"
+                onUpdateSensorView(tsLong,event.values[0],0f,0f,event.sensor!!.type)
             }
         }
         if (mPreferences!!.getBoolean("preference_sensor_record", true)) {
@@ -297,6 +309,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         mSensorBaro = mSensorManager!!.getDefaultSensor(Sensor.TYPE_PRESSURE)
         mSensorUnCalAcc = mSensorManager!!.getDefaultSensor(Sensor.TYPE_ACCELEROMETER_UNCALIBRATED)
         mSensorUnCalGyro = mSensorManager!!.getDefaultSensor(Sensor.TYPE_GYROSCOPE_UNCALIBRATED)
+        mSensorMag = mSensorManager!!.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
+        mSensorUnCalMag = mSensorManager!!.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED)
 
 
         if (mProvider == null) {
@@ -369,8 +383,17 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private fun onUpdateView() {
         when (mCurrentFragment) {
             SNR_FRAGMENT  -> mSnrFragment.onUpdateView(mGnssInfo!!)
-            SEN_FRAGMENT  -> mSensorFragment.onUpdateView(mGnssInfo!!)
             MAP_FRAGMENT  -> mMapFragment.onUpdateView(mGnssInfo!!)
+        }
+    }
+
+
+    private fun onUpdateSensorView(time :Long, x: Float,y: Float,z: Float, type: Int) {
+
+        when (mCurrentFragment) {
+
+            SEN_FRAGMENT  -> {mSensorFragment.onUpdateView(time, x, y, z, type)
+                }
         }
     }
 
@@ -390,6 +413,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             mSensorManager!!.registerListener(this, mSensorBaro, SensorManager.SENSOR_DELAY_GAME)
             mSensorManager!!.registerListener(this, mSensorUnCalAcc, SensorManager.SENSOR_DELAY_GAME)
             mSensorManager!!.registerListener(this, mSensorUnCalGyro, SensorManager.SENSOR_DELAY_GAME)
+            mSensorManager!!.registerListener(this, mSensorMag, SensorManager.SENSOR_DELAY_GAME)
+            mSensorManager!!.registerListener(this, mSensorUnCalMag, SensorManager.SENSOR_DELAY_GAME)
         }
     }
 
