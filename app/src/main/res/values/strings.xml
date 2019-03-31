@@ -4,6 +4,16 @@
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
 
+    <string name="text_loc_lon_txt">Lon:</string>
+    <string name="text_loc_lat_txt">Lat:</string>
+    <string name="text_loc_alt_txt">Alt:</string>
+    <string name="text_loc_speed_txt">Speed:</string>
+    <string name="text_loc_time_txt">Time:</string>
+    <string name="text_loc_date_txt">Date:</string>
+    <string name="text_loc_view_txt">View:</string>
+    <string name="text_loc_use_txt">Use:</string>
+    <string name="placeholder_value">---</string>
+
     <string name="sat_prn">200</string>
     <string name="sat_inuse">T</string>
     <string name="sat_azi">27</string>

@@ -29,6 +29,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import kotlinx.android.synthetic.main.fragment_snr.*
 
 import java.util.ArrayList
 import kotlin.math.abs
@@ -51,6 +52,13 @@ class SnrFragment : Fragment() {
     fun onUpdateView(info: GnssInfo) {
         val mAdapter = SnrAdapter(this.mContext!!, R.layout.include_snr, info.satellites)
         mSnrListView!!.adapter = mAdapter
+        textInfoLon.text = String.format("%.8f", info.longitude)
+        textInfoLat.text = String.format("%.8f", info.latitude)
+        textInfoAlt.text = String.format("%.5f", info.altitude)
+        textInfoSpeed.text = info.speed.toString()
+        textInfoInview.text = info.inview.toString()
+        textInfoInuse.text = info.inuse.toString()
+
     }
 
     private inner class SnrAdapter internal constructor(context: Context, textViewResourceId: Int, satList: ArrayList<GnssSatellite>) : ArrayAdapter<GnssSatellite>(context, textViewResourceId, satList) {

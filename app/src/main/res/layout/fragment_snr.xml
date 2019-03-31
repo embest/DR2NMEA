@@ -1,14 +1,127 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".fragments.SnrFragment">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              tools:context=".fragments.SnrFragment" android:orientation="vertical">
 
+    <TableLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="0.0dip"
+            android:layout_marginLeft="8.0dip"
+            android:layout_marginRight="8.0dip"
+            android:layout_marginTop="8.0dip"
+            android:paddingBottom="0dip">>
+
+        <TableRow>
+
+            <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1.0"
+                    android:text="@string/text_loc_lon_txt"
+                    android:textSize="14.0sp" />
+
+            <TextView
+                    android:id="@+id/textInfoLon"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2.0"
+                    android:text="@string/placeholder_value"
+                    android:textSize="14.0sp" />
+
+            <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1.0"
+                    android:text="@string/text_loc_lat_txt"
+                    android:textSize="14.0sp" />
+
+            <TextView
+                    android:id="@+id/textInfoLat"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2.0"
+                    android:text="@string/placeholder_value"
+                    android:textSize="14.0sp" />
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1.0"
+                    android:text="@string/text_loc_alt_txt"
+                    android:textSize="14.0sp" />
+
+            <TextView
+                    android:id="@+id/textInfoAlt"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2.0"
+                    android:text="@string/placeholder_value"
+                    android:textSize="14.0sp" />
+
+            <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1.0"
+                    android:text="@string/text_loc_speed_txt"
+                    android:textSize="14.0sp" />
+
+            <TextView
+                    android:id="@+id/textInfoSpeed"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2.0"
+                    android:text="@string/placeholder_value"
+                    android:textSize="14.0sp" />
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1.0"
+                    android:text="@string/text_loc_view_txt"
+                    android:textSize="14.0sp" />
+
+            <TextView
+                    android:id="@+id/textInfoInview"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2.0"
+                    android:text="@string/placeholder_value"
+                    android:textSize="14.0sp" />
+
+            <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1.0"
+                    android:text="@string/text_loc_use_txt"
+                    android:textSize="14.0sp" />
+
+            <TextView
+                    android:id="@+id/textInfoInuse"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2.0"
+                    android:text="@string/placeholder_value"
+                    android:textSize="14.0sp" />
+        </TableRow>
+
+
+    </TableLayout>
     <GridView
+        android:layout_marginTop="10dp"
         android:numColumns="2"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:id="@+id/gridViewSnr"
         android:choiceMode="none"/>
 
-</FrameLayout>
+</LinearLayout>
