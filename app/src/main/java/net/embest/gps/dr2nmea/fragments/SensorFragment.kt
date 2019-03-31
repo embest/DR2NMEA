@@ -78,10 +78,28 @@ class SensorFragment : Fragment() {
         mPressure.clear()
         mMagnetic.clear()
 
-        initSetting(lineSensorAcc,"Accelerometer :${mSensorAcc.name}")
-        initSetting(lineSensorGyro,"Gyroscope: ${mSensorGyro.name}")
-        initSetting(lineSensorBaro,"Pressure: ${mSensorBaro.name}")
-        initSetting(lineSensorMag, "Magnetic: ${mSensorMagnetic.name}")
+        lineSensorAcc.visibility = View.GONE
+        lineSensorGyro.visibility = View.GONE
+        lineSensorBaro.visibility = View.GONE
+        lineSensorMag.visibility = View.GONE
+
+        if (mSensorAcc != null){
+            initSetting(lineSensorAcc,"Accelerometer :${mSensorAcc.name}")
+            lineSensorAcc.visibility = View.VISIBLE
+        }
+        if (mSensorGyro != null){
+            initSetting(lineSensorGyro,"Gyroscope: ${mSensorGyro.name}")
+            lineSensorGyro.visibility = View.VISIBLE
+        }
+        if (mSensorBaro != null){
+            initSetting(lineSensorBaro,"Pressure: ${mSensorBaro.name}")
+            lineSensorBaro.visibility = View.VISIBLE
+        }
+        if (mSensorMagnetic != null){
+            initSetting(lineSensorMag, "Magnetic: ${mSensorMagnetic.name}")
+            lineSensorMag.visibility = View.VISIBLE
+        }
+
     }
 
     fun onUpdateView(time :Long, x: Float,y: Float,z: Float, type: Int) {
