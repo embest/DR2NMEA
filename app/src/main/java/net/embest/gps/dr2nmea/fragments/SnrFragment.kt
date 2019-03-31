@@ -55,7 +55,7 @@ class SnrFragment : Fragment() {
         textInfoLon.text = String.format("%.8f", info.longitude)
         textInfoLat.text = String.format("%.8f", info.latitude)
         textInfoAlt.text = String.format("%.5f", info.altitude)
-        textInfoSpeed.text = info.speed.toString()
+        textInfoSpeed.text = String.format("%.5f", info.speed)
         textInfoInview.text = info.inview.toString()
         textInfoInuse.text = info.inuse.toString()
 
