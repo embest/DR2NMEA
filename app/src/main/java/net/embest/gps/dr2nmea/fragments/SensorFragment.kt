@@ -18,6 +18,7 @@ package net.embest.gps.dr2nmea.fragments
 
 import android.content.Context
 import android.graphics.Color
+import android.graphics.Paint
 import android.hardware.Sensor
 import android.hardware.SensorManager
 import net.embest.gps.dr2nmea.R
@@ -36,6 +37,10 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.components.YAxis
 import kotlinx.android.synthetic.main.fragment_sensor.*
 import kotlin.collections.ArrayList
+import android.opengl.ETC1.getHeight
+import android.opengl.ETC1.getWidth
+
+
 
 
 class SensorFragment : Fragment() {
@@ -99,7 +104,6 @@ class SensorFragment : Fragment() {
             initSetting(lineSensorMag, "Magnetic: ${mSensorMagnetic.name}")
             lineSensorMag.visibility = View.VISIBLE
         }
-
     }
 
     fun onUpdateView(time :Long, x: Float,y: Float,z: Float, type: Int) {
@@ -125,7 +129,7 @@ class SensorFragment : Fragment() {
                 yLineData.add(mAccY)
                 yLineData.add(mAccZ)
 
-                setMoreLineData(lineSensorAcc, yLineData, names, colors) //设置多条折线
+                setMoreLineData(lineSensorAcc, yLineData, names, colors)
             }
             Sensor.TYPE_GYROSCOPE_UNCALIBRATED -> {
                 val names:ArrayList<String> = ArrayList()
@@ -162,29 +166,60 @@ class SensorFragment : Fragment() {
     }
 
 
+    fun onUpdateAccuracy(type: Int, accuracy: Int) {
+        when (type){
+            Sensor.TYPE_ACCELEROMETER_UNCALIBRATED -> {
+                val description = lineSensorAcc.description
+                description.isEnabled = true
+                description.text = "Accuracy:$accuracy"
+                description.setPosition( lineSensorAcc.width/2.0F, lineSensorAcc.height/2.0F)
+                description.textAlign = Paint.Align.CENTER
+            }
+            Sensor.TYPE_GYROSCOPE_UNCALIBRATED -> {
+                val description = lineSensorGyro.description
+                description.isEnabled = true
+                description.text = "Accuracy:$accuracy"
+                description.setPosition( lineSensorGyro.width/2.0F, lineSensorGyro.height/2.0F)
+                description.textAlign = Paint.Align.CENTER
+            }
+            Sensor.TYPE_PRESSURE -> {
+                val description = lineSensorBaro.description
+                description.isEnabled = true
+                description.text = "Accuracy:$accuracy"
+                description.setPosition( lineSensorBaro.width/2.0F, lineSensorBaro.height/2.0F)
+                description.textAlign = Paint.Align.CENTER
+            }
+            Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED -> {
+                val description = lineSensorMag.description
+                description.isEnabled = true
+                description.text = "Accuracy:$accuracy"
+                description.setPosition( lineSensorMag.width/2.0F, lineSensorMag.height/2.0F)
+                description.textAlign = Paint.Align.CENTER
+            }
+        }
+    }
+
     private fun initSetting(chart: LineChart, description: String) {
         chart.description.text = ""
         chart.description.textColor = Color.RED
-        chart.description.textSize = 16f//设置描述的文字 ,颜色 大小
-        chart.setNoDataText(description) //没数据的时候显示
+        chart.description.textSize = 16f
+        chart.setNoDataText(description)
 
-        //设置X轴
         xAxis = chart.xAxis
-        xAxis!!.position = XAxis.XAxisPosition.BOTTOM//设置x轴位置
+        xAxis!!.position = XAxis.XAxisPosition.BOTTOM
         xAxis!!.textSize = 12f
         xAxis!!.textColor = Color.RED
-        xAxis!!.isEnabled = true//是否显示x轴是否禁用
-        xAxis!!.setDrawLabels(true) //设置x轴标签 即x轴上显示的数值
-        xAxis!!.setDrawGridLines(true)//是否设置x轴上每个点对应的线 即 竖向的网格线
-        xAxis!!.enableGridDashedLine(2f, 2f, 2f) //竖线 虚线样式  lineLength控制虚线段的长度 spaceLength控制线之间的空间
-        xAxis!!.labelRotationAngle = 0f//设置x轴标签的旋转角度
-        xAxis!!.granularity = 1f//x轴上设置间隔尺寸
+        xAxis!!.isEnabled = true
+        xAxis!!.setDrawLabels(true)
+        xAxis!!.setDrawGridLines(true)
+        xAxis!!.enableGridDashedLine(2f, 2f, 2f)
+        xAxis!!.labelRotationAngle = 0f
+        xAxis!!.granularity = 1f
 
-        //设置Y轴
         val yAxisLef = chart.axisLeft
         yAxisLef.textSize = 14f
-        val yAxisRight = chart.axisRight//获取右侧y轴
-        yAxisRight.isEnabled = false//设置是否禁止
+        val yAxisRight = chart.axisRight
+        yAxisRight.isEnabled = false
     }
 
 
@@ -211,15 +246,15 @@ class SensorFragment : Fragment() {
 
     private fun getSingleLine(lineYVals: List<Entry> ):LineData{
         val lineDataSet = LineDataSet(lineYVals, "")
-        lineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER// 设置平滑曲线
-        lineDataSet.highLightColor = Color.RED //设置高亮线的颜色
-        lineDataSet.isHighlightEnabled = false//设置高亮线是否可用
-        lineDataSet.color = Color.BLACK//设置折线颜色
-        lineDataSet.setCircleColor(Color.BLUE)//设置交点的圆圈的颜色
-        lineDataSet.setDrawCircles(false)//设置是否显示交点
-        lineDataSet.setDrawValues(false) //设置是否显示交点处的数值
-        lineDataSet.valueTextColor = Color.RED //设置交点上值的颜色
-        lineDataSet.valueTextSize = 14f//设置交点上值的字体大小
+        lineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
+        lineDataSet.highLightColor = Color.RED
+        lineDataSet.isHighlightEnabled = false
+        lineDataSet.color = Color.BLACK
+        lineDataSet.setCircleColor(Color.BLUE)
+        lineDataSet.setDrawCircles(false)
+        lineDataSet.setDrawValues(false)
+        lineDataSet.valueTextColor = Color.RED
+        lineDataSet.valueTextSize = 14f
         return LineData(lineDataSet)
     }
 
@@ -231,15 +266,15 @@ class SensorFragment : Fragment() {
                 yValues.add( Entry(j.toFloat(), lineChartYs[i][j]))
             }
             val lineDataSet = LineDataSet(yValues, lineNames[i])
-            lineDataSet.color = lineColors[i]//设置折线颜色
-            lineDataSet.setCircleColor(lineColors[i]) //设置交点圆的颜色
+            lineDataSet.color = lineColors[i]
+            lineDataSet.setCircleColor(lineColors[i])
             lineDataSet.valueTextColor = lineColors[i]
-            lineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER// 设置平滑曲线
-            lineDataSet.highLightColor = Color.RED //设置高亮线的颜色
-            lineDataSet.isHighlightEnabled = false//设置高亮线是否可用
-            lineDataSet.setDrawCircles(false)//设置是否显示交点
-            lineDataSet.setDrawValues(false) //设置是否显示交点处的数值
-            lineDataSet.valueTextSize = 14f//设置交点上值的字体大小
+            lineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
+            lineDataSet.highLightColor = Color.RED
+            lineDataSet.isHighlightEnabled = false
+            lineDataSet.setDrawCircles(false)
+            lineDataSet.setDrawValues(false)
+            lineDataSet.valueTextSize = 14f
             lineDataSet.axisDependency = YAxis.AxisDependency.LEFT
             lineData.addDataSet(lineDataSet)
         }

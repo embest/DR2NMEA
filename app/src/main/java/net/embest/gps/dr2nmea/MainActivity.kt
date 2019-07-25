@@ -70,7 +70,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private var mService: LocationManager? = null
     private var mProvider: LocationProvider? = null
 
-    private var mSensorManager: SensorManager? = null// getSystemService(SENSOR_SERVICE);
+    private var mSensorManager: SensorManager? = null
 
     private var mSensorAcc: Sensor? = null
     private var mSensorGyro: Sensor? = null
@@ -126,7 +126,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         checkAndRequestPermissions()
 
         fab.setOnClickListener{ view ->
-
             mGnssStarted = if (!mGnssStarted) {
                 onMakeRecordName()
                 mGnssInfo!!.reset()
@@ -204,6 +203,33 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+        when (sensor!!.type){
+            Sensor.TYPE_ACCELEROMETER -> {
+                Log.e(TAG, "ACCCAL:$accuracy")
+            }
+            Sensor.TYPE_GYROSCOPE -> {
+                Log.e(TAG, "GYRCAL:$accuracy")
+            }
+            Sensor.TYPE_ACCELEROMETER_UNCALIBRATED -> {
+                Log.e(TAG, "ACCORG:$accuracy")
+                onUpdateSensorAcc(sensor.type, accuracy)
+            }
+            Sensor.TYPE_GYROSCOPE_UNCALIBRATED -> {
+                Log.e(TAG, "GYRORG:$accuracy")
+                onUpdateSensorAcc(sensor.type, accuracy)
+            }
+            Sensor.TYPE_PRESSURE -> {
+                Log.e(TAG, "BARORG:$accuracy")
+                onUpdateSensorAcc(sensor.type, accuracy)
+            }
+            Sensor.TYPE_MAGNETIC_FIELD -> {
+                Log.e(TAG, "MAGCAL:$accuracy")
+            }
+            Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED -> {
+                Log.e(TAG, "MAGORG:$accuracy")
+                onUpdateSensorAcc(sensor.type, accuracy)
+            }
+        }
     }
 
     override fun onSensorChanged(event: SensorEvent) {
@@ -391,9 +417,18 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private fun onUpdateSensorView(time :Long, x: Float,y: Float,z: Float, type: Int) {
 
         when (mCurrentFragment) {
+            SEN_FRAGMENT  -> {
+                mSensorFragment.onUpdateView(time, x, y, z, type)
+            }
+        }
+    }
 
-            SEN_FRAGMENT  -> {mSensorFragment.onUpdateView(time, x, y, z, type)
-                }
+    private fun onUpdateSensorAcc(type: Int, accuracy: Int) {
+
+        when (mCurrentFragment) {
+            SEN_FRAGMENT  -> {
+                mSensorFragment.onUpdateAccuracy(type, accuracy)
+            }
         }
     }
 
@@ -493,8 +528,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                                 }
                             }
 
-//                            Log.e(TAG, "SAT:${satellite.svid} Type:${satellite.constellation} is:${satellite.frequency}")
-
                             mGnssInfo!!.addSatellite(satellite)
                             view++
                             if (status.usedInFix(i)) {
@@ -591,8 +624,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                                 "",
                                 meas.carrierFrequencyHz).replace("NaN","")
                         }
-//                        Log.e(TAG,"CF:" + meas.carrierFrequencyHz)
-//                        Log.e(TAG, measurementStream)
                         if (mPreferences!!.getBoolean("preference_raw_record", true)) {
                             mFile.writeMeasurementFile(mRecordFileName,measurementStream)
                         }
