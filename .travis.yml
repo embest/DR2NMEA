@@ -42,7 +42,7 @@ before_install:
 - mkdir -p $HOME/android
 - wget https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip
 - unzip sdk-tools-linux-4333796.zip -d $HOME/android
-- export PATH=$HOME/android/platform-tools:$HOME/android/tools:$PATH
+- export PATH=$HOME/android/platform-tools:$HOME/android/tools/bin/:$PATH
 - openssl aes-256-cbc -K $encrypted_4267ec5c4cf5_key -iv $encrypted_4267ec5c4cf5_iv
   -in dr2nmea.jks.enc -out dr2nmea.jks -d
 - yes | sdkmanager "platforms;android-28"
