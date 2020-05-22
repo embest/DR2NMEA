@@ -17,17 +17,10 @@
 package net.embest.gps.dr2nmea
 
 import android.Manifest
-import android.os.Bundle
-import android.support.design.widget.BottomNavigationView
-import android.support.v7.app.AppCompatActivity
-import kotlinx.android.synthetic.main.activity_main.*
-import android.support.v4.app.Fragment
-import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
-import android.content.SharedPreferences
+import android.bluetooth.BluetoothGattCharacteristic
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.content.res.Configuration
@@ -37,29 +30,48 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.icu.text.SimpleDateFormat
 import android.location.*
+import android.media.AudioManager
+import android.media.Ringtone
+import android.media.RingtoneManager
+import android.media.ToneGenerator
 import android.net.Uri
-import android.os.Build
-import android.os.Handler
-import android.os.SystemClock
+import android.os.*
 import android.preference.PreferenceActivity
 import android.preference.PreferenceManager
 import android.provider.Settings
+import android.support.design.widget.BottomNavigationView
 import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
+import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
+import android.support.v7.app.AppCompatActivity
+import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.view.WindowManager
-import android.widget.Toast.*
-import net.embest.gps.dr2nmea.fragments.*
+import android.widget.Toast.LENGTH_SHORT
+import android.widget.Toast.makeText
+import com.clj.fastble.BleManager
+import com.clj.fastble.callback.BleNotifyCallback
+import com.clj.fastble.data.BleDevice
+import com.clj.fastble.exception.BleException
+import com.clj.fastble.utils.HexUtil
+import kotlinx.android.synthetic.main.activity_main.*
+import net.embest.gps.dr2nmea.fragments.BtFragment
+import net.embest.gps.dr2nmea.fragments.SensorFragment
+import net.embest.gps.dr2nmea.fragments.SnrFragment
 import net.embest.gps.dr2nmea.utils.*
+import java.lang.Long.parseLong
+import java.lang.ref.WeakReference
 import java.util.*
 
 
-class MainActivity : AppCompatActivity(), SensorEventListener {
+class MainActivity : AppCompatActivity(), SensorEventListener, BtFragment.OnFragmentInteractionListener {
 
     private val mSnrFragment = SnrFragment.newInstance()
     private val mSensorFragment = SensorFragment.newInstance()
-    private val mMapFragment = MapFragment.newInstance()
+    private val mBtFragment = BtFragment.newInstance()
 
     private val mContext by lazy { this }
     private var mCurrentFragment: Int = 0
@@ -85,6 +97,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     private var mGnssStarted: Boolean = false
     private var mNeedExit: Boolean =false
+    private var mSpeedBeepCount = 0
+    private var mSensorBeepCount = 0
 
 
     private var mRecordFileName: String = "gnss_record"
@@ -96,6 +110,17 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private var mGnssStatusCallBack: GnssStatus.Callback? = null
     private var mGnssMeasurementsCallBack: GnssMeasurementsEvent.Callback? = null
     private var mGnssNavigationCallBack: GnssNavigationMessage.Callback? = null
+
+    private var mWheelCount:Long = 0
+    private var mTimestamp = System.currentTimeMillis()
+
+    private var udpSocket: UdpSocket? = null
+
+    private var mUdpHandler: Handler
+    init {
+        val outerClass = WeakReference(this)
+        mUdpHandler = UdpScoketHandler(outerClass)
+    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -123,6 +148,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         mPreferences = PreferenceManager.getDefaultSharedPreferences(baseContext)
 
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
+        if (!mPreferences!!.getBoolean("preference_enable_bt_speed_support",false)) {
+            navigation.menu.removeItem(R.id.navigation_bt)
+        }
         checkAndRequestPermissions()
 
         fab.setOnClickListener{ view ->
@@ -142,6 +170,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 false
             }
         }
+        udpSocket = UdpSocket(mUdpHandler)
+        udpSocket?.startUDPSocket()
     }
 
     override fun onResume() {
@@ -272,11 +302,62 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         }
     }
 
+    override fun onBtDeviceNotfiy(bleDevice: BleDevice, characteristic: BluetoothGattCharacteristic){
+        BleManager.getInstance().notify(bleDevice, characteristic.service.uuid.toString(), characteristic.uuid.toString(), object : BleNotifyCallback() {
+                override fun onNotifySuccess() {
+                    runOnUiThread(Runnable { Log.e("BTTTT", "notify success") })
+                }
+
+                override fun onNotifyFailure(exception: BleException) {
+                    runOnUiThread(Runnable {
+                        Log.e("BTTTT", exception.toString() )
+                    })
+                }
+
+                override fun onCharacteristicChanged(data: ByteArray) {
+                    val timestamp = System.currentTimeMillis()
+                    runOnUiThread(Runnable {
+                        val countHex = HexUtil.formatHexString(characteristic.value,true ).split(" ")
+                        //Log.e("BTTTT:", "${countHex[1]} ${countHex[2]} ${countHex[3]} ${countHex[4]}")
+                        val count:Long = parseLong(countHex[1], 16) + parseLong(countHex[2], 16)*256 + parseLong(countHex[3], 16)*65536 + parseLong(countHex[4], 16)*16777216
+
+                        var speed = 0.0f
+                        var speer_unc = 0
+                        if (mWheelCount>0){
+                            if (mWheelCount == count){
+                                speed = 0.0f
+                                Log.e("Speed:", "Speed is $speed")
+                            }else{
+                                val delta = count - mWheelCount
+                                val wheel = mPreferences!!.getString("preference_wheel_circumference", "1.0")!!.toFloat()
+                                speed = delta*wheel/(timestamp-mTimestamp)*1000.0f
+                                Log.e("Speed:", "Speed is $speed")
+                                val pglor = "\$pglor13,$timestamp,"+String.format("%.2f", speed)+ ",5,0"
+                                udpSocket?.sendMessage(pglor)
+                            }
+                        }
+
+                        mSensorLog += "SPEED,$timestamp,V:$speed\r\n"
+                        onUpdateSpeedView(timestamp,speed,0f,0f, 0)
+                        mTimestamp = timestamp
+                        mWheelCount = count
+
+                    })
+                }
+            })
+    }
+
+    class UdpScoketHandler(private val outerClass: WeakReference<MainActivity>) : Handler() {
+        override fun handleMessage(msg: Message?) {
+            Log.e(TAG, "UDP:" + msg)
+        }
+    }
+
     private fun replaceFragment(fragment: Fragment) {
         val fragmentTransaction = supportFragmentManager.beginTransaction()
         fragmentTransaction.replace(R.id.container, fragment)
         fragmentTransaction.commitNow()
-        if(!mGnssInfo!!.satellites.isEmpty()){
+        if(mGnssInfo!!.satellites.isNotEmpty()){
             onUpdateView()
         }
     }
@@ -293,9 +374,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 replaceFragment(mSensorFragment)
                 return@OnNavigationItemSelectedListener true
             }
-            R.id.navigation_map ->{
-                mCurrentFragment = MAP_FRAGMENT
-                replaceFragment(mMapFragment)
+            R.id.navigation_bt ->{
+                mCurrentFragment = BT_FRAGMENT
+                replaceFragment(mBtFragment)
                 return@OnNavigationItemSelectedListener true
             }
         }
@@ -344,6 +425,11 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             makeText(this, getString(R.string.msg_gps_not_supported), LENGTH_SHORT).show()
             finish()
         }
+
+        BleManager.getInstance().init(application)
+        BleManager.getInstance().enableLog(true)
+            .setReConnectCount(1, 5000)
+            .setConnectOverTime(20000).operateTimeout = 5000
 
         replaceFragment(mSnrFragment)
     }
@@ -406,10 +492,13 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         }
     }
 
+
+
+
     private fun onUpdateView() {
         when (mCurrentFragment) {
             SNR_FRAGMENT  -> mSnrFragment.onUpdateView(mGnssInfo!!)
-            MAP_FRAGMENT  -> mMapFragment.onUpdateView(mGnssInfo!!)
+//            MAP_FRAGMENT  -> mMapFragment.onUpdateView(mGnssInfo!!)
         }
     }
 
@@ -419,6 +508,14 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         when (mCurrentFragment) {
             SEN_FRAGMENT  -> {
                 mSensorFragment.onUpdateView(time, x, y, z, type)
+            }
+        }
+    }
+
+    private fun onUpdateSpeedView(time :Long, x: Float,y: Float,z: Float, type: Int) {
+        when (mCurrentFragment) {
+            BT_FRAGMENT  -> {
+                mBtFragment.onUpdateView(time, x, y, z, type)
             }
         }
     }
@@ -479,7 +576,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             }
             mGnssInfo!!.time = location.time
             Log.d(TAG, "onLocationChanged ${mGnssInfo!!.latitude}  ${mGnssInfo!!.longitude}  ${mGnssInfo!!.altitude} ${mGnssInfo!!.fixtime}")
-            Log.e(TAG, "onLocationChanged: ${mNmeaGenerator.onGenerateNmea(mGnssInfo!!)}")
+            //Log.e(TAG, "onLocationChanged: ${mNmeaGenerator.onGenerateNmea(mGnssInfo!!)}")
 
             if (mPreferences!!.getBoolean("preference_nmea_generator", true)) {
                 mFile.writeGeneratorNmea(mRecordFileName, mNmeaGenerator.onGenerateNmea(mGnssInfo!!))
@@ -643,7 +740,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         if (mGnssNavigationCallBack == null) {
             mGnssNavigationCallBack = object : GnssNavigationMessage.Callback() {
                 override fun onGnssNavigationMessageReceived(event: GnssNavigationMessage) {
-                    Log.i(TAG, "NAV : " + event.toString())
+                    //Log.i(TAG, "NAV : " + event.toString())
                 }
                 override fun onStatusChanged(status: Int) {}
             }
@@ -654,12 +751,45 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         }
     }
 
+    private fun onSpeedBeep()
+    {
+        if (mSpeedBeepCount == 0) {
+            val notification: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+            val r: Ringtone = RingtoneManager.getRingtone(applicationContext, notification)
+            r.play()
+        }
+        mSpeedBeepCount = (mSpeedBeepCount+1)%10
+    }
+
+    private fun onSensorBeep()
+    {
+        if (mSensorBeepCount == 0) {
+            val notification: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+            val r: Ringtone = RingtoneManager.getRingtone(applicationContext, notification)
+            r.play()
+            r.play()
+        }
+        mSensorBeepCount = (mSensorBeepCount+1)%10
+    }
+
     private fun registerNmeaMessageListener(){
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
 
             mService!!.addNmeaListener(OnNmeaMessageListener { message, _ ->
                 if (mPreferences!!.getBoolean("preference_nmea_record", true)) {
                     mFile.writeNmeaFile(mRecordFileName, message)
+                }
+                if (message.indexOf("HLA") > 0) {
+                    val messageList = message.split(',')
+                    if (messageList[16] == "1" && messageList[18] == "1") {
+                        onSensorBeep()
+                    }
+                    if (messageList[20].isNotEmpty()) {
+                        if (messageList[20].toFloat() > 0) {
+//                            onSpeedBeep()
+                            onSensorBeep()
+                        }
+                    }
                 }
             })
         }
@@ -691,7 +821,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         private const val REQUEST_ID_MULTIPLE_PERMISSIONS = 1
         private const val SNR_FRAGMENT  = 0
         private const val SEN_FRAGMENT  = 1
-        private const val MAP_FRAGMENT  = 2
+        private const val BT_FRAGMENT  = 2
 
     }
 

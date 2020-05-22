@@ -37,8 +37,7 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.components.YAxis
 import kotlinx.android.synthetic.main.fragment_sensor.*
 import kotlin.collections.ArrayList
-import android.opengl.ETC1.getHeight
-import android.opengl.ETC1.getWidth
+
 
 
 

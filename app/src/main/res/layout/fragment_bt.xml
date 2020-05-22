@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        tools:context=".fragments.BtFragment" android:orientation="vertical">
+
+    <Button
+            android:layout_marginTop="10dp"
+            android:id="@+id/buttonScan"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1.2"
+            android:text="@string/text_bt_scan_start" />
+
+    <ListView
+            android:layout_marginTop="10dp"
+            android:numColumns="1"
+            android:id="@+id/listViewDevices"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="0.5"
+            />
+
+
+    <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/lineSensorSpeed"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="0.9">
+
+    </com.github.mikephil.charting.charts.LineChart>
+
+</LinearLayout>

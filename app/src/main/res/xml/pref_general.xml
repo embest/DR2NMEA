@@ -34,6 +34,28 @@
             android:title="@string/pref_title_hack_dual_frequency_support" />
 
     <SwitchPreference
+            android:defaultValue="false"
+            android:key="preference_enable_bt_speed_support"
+            android:summary="@string/pref_description_enable_bt_speed_support"
+            android:title="@string/pref_title_enable_bt_speed_support" />
+
+    <EditTextPreference
+            android:defaultValue="00001816-0000-1000-8000-00805f9b34fb"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:summary="@string/pref_description_bt_speed_uuid"
+            android:title="@string/pref_title_bt_speed_uuid"
+            android:key="preference_bt_speed_uuid" />
+
+    <EditTextPreference
+            android:defaultValue="1.0"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:summary="@string/pref_description_wheel_circumference"
+            android:title="@string/pref_title_wheel_circumference"
+            android:key="preference_wheel_circumference" />
+
+    <SwitchPreference
             android:defaultValue="true"
             android:key="preference_nmea_generator"
             android:summary="@string/pref_description_nmea_generator"

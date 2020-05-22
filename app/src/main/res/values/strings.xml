@@ -12,6 +12,8 @@
     <string name="text_loc_date_txt">Date:</string>
     <string name="text_loc_view_txt">View:</string>
     <string name="text_loc_use_txt">Use:</string>
+    <string name="text_bt_scan_start">Start Scan</string>
+    <string name="text_bt_scan_stop">Stop Scan</string>
     <string name="placeholder_value">---</string>
 
     <string name="sat_prn">200</string>
@@ -23,7 +25,7 @@
     <string name="title_nmea">NMEA</string>
     <string name="title_sen">Sensor</string>
     <string name="title_snr">SNR</string>
-    <string name="title_map">MAP</string>
+    <string name="title_bt">BT</string>
     <string name="title_info">INFO</string>
     <string name="action_share">Share</string>
     <string name="action_settings">Settings</string>
@@ -37,9 +39,7 @@
     <string name="msg_dialog_yes">Yes</string>
     <string name="msg_dialog_cancel">Cancel</string>
     <string name="msg_request_permissions">Storage &amp; Location permissions are required.</string>
-    <string name="msg_request_permissions_settings">Storage &amp; Location permissions are required. Do you want to go
-        to app settings?
-    </string>
+    <string name="msg_request_permissions_settings">Storage &amp; Location permissions are required. Do you want to goto app settings? </string>
     <string name="msg_gps_not_supported">GPS Not Supported!</string>
 
     <!-- TODO: Remove or change this placeholder text -->
@@ -59,7 +59,23 @@
     <string name="pref_description_device_name">Device Name</string>
     <string name="pref_title_hack_dual_frequency_support">Hack for dual Frequency Support</string>
     <string name="pref_description_hack_dual_frequency_support">Hack for support dual frequency SNR display</string>
+
+    <string name="pref_title_enable_bt_speed_support">Enable BT Cadence &amp; Speed Sensor</string>
+    <string name="pref_description_enable_bt_speed_support">XOSS Bike Cadence Sensor &amp; Speed Sensor</string>
+
     <string name="pref_title_nmea_generator">NMEA Generator</string>
     <string name="pref_description_nmea_generator">Generate NMEA from LocationManager</string>
 
+    <string name="connect">Connect</string>
+    <string name="connected">Connected</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="enter">Enter</string>
+
+    <string name="connect_fail">connection failed</string>
+    <string name="active_disconnected">disconnect</string>
+    <string name="disconnected">Connection disconnect</string>
+    <string name="pref_description_bt_speed_uuid">UUID of Bike Cadence &amp; Speed Sensor</string>
+    <string name="pref_title_bt_speed_uuid">UUID</string>
+    <string name="pref_title_wheel_circumference">Wheel Circumference</string>
+    <string name="pref_description_wheel_circumference">wheel circumference in meter</string>
 </resources>

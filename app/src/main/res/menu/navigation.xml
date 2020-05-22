@@ -14,8 +14,8 @@
 
 
     <item
-            android:id="@+id/navigation_map"
-            android:icon="@android:drawable/ic_menu_mapmode"
-            android:title="@string/title_map" />
+            android:id="@+id/navigation_bt"
+            android:icon="@android:drawable/stat_sys_data_bluetooth"
+            android:title="@string/title_bt" />
 
 </menu>

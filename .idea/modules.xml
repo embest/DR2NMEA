@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/Android-DR2NMEA.iml" filepath="$PROJECT_DIR$/Android-DR2NMEA.iml" group="DR2NMEA" />
       <module fileurl="file://$PROJECT_DIR$/DR2NMEA.iml" filepath="$PROJECT_DIR$/DR2NMEA.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/DR2NMEA-app.iml" filepath="$PROJECT_DIR$/app/DR2NMEA-app.iml" group="DR2NMEA/app" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
